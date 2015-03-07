@@ -10,7 +10,7 @@ import urllib.request
 URL = 'https://shmmy.ntua.gr/forum/viewtopic.php?f=290&t=19705'
 POSTS = 1
 START = -5
-SLEEP_TIME = 2
+SLEEP_TIME = 60 
 DBFILE = 'conf.db'
 DEBUG = True and False
 
