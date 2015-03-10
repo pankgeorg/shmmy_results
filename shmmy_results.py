@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Simple python3 module to poll shmmy.ntua.gr for exam results"""
 import sys
+import signal
 import time
 from html.parser import HTMLParser
 import urllib.request
+import argparse
 # pankgeorg@gmail.com
 # results from shmmy.ntua.gr
 
 URL = 'https://shmmy.ntua.gr/forum/viewtopic.php?f=290&t=19705'
 POSTS = 1
-START = -5
-SLEEP_TIME = 60 
-DBFILE = 'conf.db'
+START = 0
+SLEEP_TIME = 5
 DEBUG = True and False
+RESULTS = 2
 
 
 class TermCol:
@@ -149,12 +151,14 @@ def main():
     nothing = '\rNothing new [poll # {}]'
     new_res = TermCol.WARNING + '\r{} new results available ' + TermCol.ENDC
     prompt = 'Poll for more results? [Y/n] '
-    poll = 0
-    prev_count = 0
+    poll = START
+    prev_count = START
     try:
+        if RESULTS != 2:
+            raise Exception()
         how_many = int(input("How many results to show? "))
     except:
-        how_many = 5
+        how_many = RESULTS
     while True:
         count = get_count()
         if count == prev_count:
@@ -173,5 +177,28 @@ def main():
         sys.stdout.flush()
         time.sleep(SLEEP_TIME)
 
+
+def signal_handler(sig, frame):
+    """Catch Ctr+C Gracefully """
+    print("\rControl C was pressed, exiting..")
+    sys.exit(0)
+
+
 if __name__ == "__main__":
+    DESCR = "Simple program that reads results from shmmy.ntua.gr"
+    parser = argparse.ArgumentParser(description=DESCR)
+    parser.add_argument('--head', type=int)
+    parser.add_argument('--url', type=str)
+    parser.add_argument('--time', type=int)
+    parser.add_argument('--results', type=int)
+    args = parser.parse_args()
+    if args.head:
+        START = args.head
+    if args.url:
+        URL = args.url
+    if args.time:
+        SLEEP_TIME = args.time
+    if args.results:
+        RESULTS = args.results
+    signal.signal(signal.SIGINT, signal_handler)
     main()
